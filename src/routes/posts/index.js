@@ -14,6 +14,17 @@ postRouter.post("/", async (req, res, next) => {
     }
 })
 
+// Get Specific Post
+
+postRouter.get("/:id", async (req, res, next) => {
+    try {
+        const post = await Post.findById(req.params.id)
+        res.status(200).json(post)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
 // Edit Post
 
 postRouter.put("/:id", async (req, res, next) => {
