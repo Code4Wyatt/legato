@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { Router } from "express"
+import UserModel from "./schema"
 
 const userRouter = Router()
 
@@ -7,7 +8,7 @@ const userRouter = Router()
 
 userRouter.get("/:id", async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await UserModel.findById(req.params.id);
     const { password, updatedAt, ...other } = user._doc;
     res.status(200).json(other);
   } catch (error) {
@@ -28,7 +29,7 @@ userRouter.put("/:id", async (req, res) => {
       }
     }
     try {
-      const user = await User.findByIdAndUpdate(req.params.id, { 
+      const user = await UserModel.findByIdAndUpdate(req.params.id, { 
         $set: req.body, // update the fields that are received in the request's body
       });
       res.status(200).json("Account has been updated successfully");2
@@ -45,7 +46,7 @@ userRouter.put("/:id", async (req, res) => {
 userRouter.delete("/:id", async (req, res) => {
   if (req.body.userId === req.params.id || req.body.isAdmin) {
     try {
-      await User.findByIdAndDelete(req.params.id);
+      await UserModel.findByIdAndDelete(req.params.id);
       res.status(200).json("Account has been deleted successfully");
     } catch (err) {
       return res.status(500).json(err);
@@ -60,8 +61,8 @@ userRouter.delete("/:id", async (req, res) => {
 userRouter.put("/:id/follow", async (req, res, next) => {
     if (req.body.userId !== req.params.id) {
         try {
-            const user = await User.findById(req.params.id)
-            const currentUser = await User.findById(req.body.userId)
+            const user = await UserModel.findById(req.params.id)
+            const currentUser = await UserModel.findById(req.body.userId)
             if (!user.followers.includes(req.body.userId)) {
                 await user.updateOne({ $push: { followers: req.body.userId } })
                 await currentUser.updateOne({ $push: { following: req.params.id } })
@@ -82,8 +83,8 @@ userRouter.put("/:id/follow", async (req, res, next) => {
 userRouter.put("/:id/unfollow", async (req, res) => {
     if (req.body.userId !== req.params.id) {
       try {
-        const user = await User.findById(req.params.id);
-        const currentUser = await User.findById(req.body.userId);
+        const user = await UserModel.findById(req.params.id);
+        const currentUser = await UserModel.findById(req.body.userId);
         if (user.followers.includes(req.body.userId)) {
           await user.updateOne({ $pull: { followers: req.body.userId } });
           await currentUser.updateOne({ $pull: { followings: req.params.id } });

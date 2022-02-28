@@ -1,30 +1,36 @@
 import express from "express"
 import mongoose from "mongoose"
+import cors from "cors"
 import dotenv from "dotenv"
-import helmet from "helmet"
-import morgan from "morgan"
 import listEndpoints from "express-list-endpoints"
+import authRouter from "./routes/auth"
+import userRouter from "./routes/user"
+
 import "dotenv/config"
 
 const server = express();
 const port = process.env.PORT || 5050
 
-mongoose.connect(
-  process.env.MONGO_URL,
-  { useNewUrlParser: true, useUnifiedTopology: true },
-  () => {
-      console.log("Connected to MongoDB");
-      console.log(`Server is running on port ${port}`);
-      console.table(listEndpoints(server));
-  }
-);
-
 // Middlewares
+server.use(cors())
+server.use(express.json())
 
-server.use(express.json());
-server.use(helmet());
-server.use(morgan("common"));
+// ENDPOINTS 
 
+server.use("/auth", authRouter)
+server.use("/users", userRouter)
 
+// ERROR HANDLERS 
+server.use(unauthorizedHandler)
+server.use(forbiddenHandler)
+server.use(catchAllHandler)
+
+mongoose.connection.on("connected", () => {
+  console.log("MongoDB connected!")
+  server.listen(port, () => {
+    console.table(listEndpoints(server))
+    console.log(`Server is running on port ${port}`)
+  })
+})
 
 export default server
