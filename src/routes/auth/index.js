@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import User from "../../database/models/user"
+import User from "../../database/models/User"
 
 const authRouter = Router()
 
