@@ -1,6 +1,6 @@
 import createHttpError from "http-errors"
 import jwt from "jsonwebtoken"
-import UserModel from "../users/schema.js"
+import UserModel from "../routes/user/schema.js"
 
 export const JWTAuthenticate = async user => {
   // 1. given the user, it generates two tokens: accessToken and refreshToken

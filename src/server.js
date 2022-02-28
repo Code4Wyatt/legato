@@ -3,9 +3,13 @@ import mongoose from "mongoose"
 import cors from "cors"
 import dotenv from "dotenv"
 import listEndpoints from "express-list-endpoints"
-import authRouter from "./routes/auth"
-import userRouter from "./routes/user"
-
+import authRouter from "./routes/auth/index.js"
+import userRouter from "./routes/user/index.js"
+import {
+  unauthorizedHandler,
+  forbiddenHandler,
+  catchAllHandler,
+} from "./errorHandlers.js"
 import "dotenv/config"
 
 const server = express();
@@ -24,6 +28,8 @@ server.use("/users", userRouter)
 server.use(unauthorizedHandler)
 server.use(forbiddenHandler)
 server.use(catchAllHandler)
+
+mongoose.connect(process.env.MONGO_CONNECTION)
 
 mongoose.connection.on("connected", () => {
   console.log("MongoDB connected!")

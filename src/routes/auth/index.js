@@ -1,10 +1,10 @@
 import bcrypt from "bcrypt";
-import UserModel from "../user/schema";
+import UserModel from "../user/schema.js";
 import {
   JWTAuthenticate,
   verifyRefreshTokenAndGenerateNewTokens,
-} from "../auth/tools.js";
-
+} from "../../auth/tools.js";
+import { Router } from "express";
 const authRouter = Router();
 
 // Register
