@@ -5,6 +5,7 @@ const { Schema, model } = mongoose
 const PostSchema = new Schema({
     userId: { type: String, required: true },
     content: { type: String },
+    video: { type: String },
     image: { type: String },
     likes: { type: Array, default: [] },
 },

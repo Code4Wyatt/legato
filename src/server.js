@@ -19,7 +19,7 @@ const port = process.env.PORT || 5050
 // Middlewares
 server.use(cors())
 server.use(express.json())
-
+server.use(express.urlencoded({ extended: false }))
 // ENDPOINTS 
 
 server.use("/auth", authRouter)

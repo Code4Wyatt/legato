@@ -2,14 +2,41 @@ import PostModel from "../../database/models/Post.js"
 import User from "../../database/models/User.js"
 import { Router } from "express"
 import multer from "multer"
-
-
+import crypto from "crypto"
+import { GridFsStorage } from "multer-gridfs-storage"
+import Grid from "gridfs-stream"
+import { JWTAuthMiddleware } from "../../auth/token.js"
+import path from "path"
+import "dotenv/config"
 
 const postRouter = Router();
+const mongoURI = process.env.MONGO_CONNECTION;
+
+// Create storage engine
+const storage = new GridFsStorage({
+  url: mongoURI,
+  file: (req, file) => {
+    return new Promise((resolve, reject) => {
+      crypto.randomBytes(16, (err, buf) => {
+        if (err) {
+          return reject(err);
+        }
+        const filename = buf.toString('hex') + path.extname(file.originalname);
+        const fileInfo = {
+          filename: filename,
+          bucketName: 'uploads'
+        };
+        resolve(fileInfo);
+      });
+    });
+    }
+});
+
+const upload = multer({ storage });
 
 // Create Post
 
-postRouter.post("/", async (req, res, next) => {
+postRouter.post("/", JWTAuthMiddleware, upload.single('video'), async (req, res, next) => {
     const newPost = new PostModel(req.body)
     try {
         const savedPost = await newPost.save()
@@ -17,6 +44,13 @@ postRouter.post("/", async (req, res, next) => {
     } catch (error) {
         res.status(500).json(error)
     }
+})
+
+// Post Video
+
+postRouter.post("/video", JWTAuthMiddleware, upload.single('video'), async (req, res, next) => {
+ // seperate post video route or include it in the post route as a non required option? 
+
 })
 
 // Get Specific Post
