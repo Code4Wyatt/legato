@@ -5,6 +5,7 @@ import dotenv from "dotenv"
 import listEndpoints from "express-list-endpoints"
 import authRouter from "./routes/auth/index.js"
 import userRouter from "./routes/user/index.js"
+import postRouter from "./routes/posts/index.js"
 import {
   unauthorizedHandler,
   forbiddenHandler,
@@ -23,6 +24,7 @@ server.use(express.json())
 
 server.use("/auth", authRouter)
 server.use("/users", userRouter)
+server.use("/feed", postRouter)
 
 // ERROR HANDLERS 
 server.use(unauthorizedHandler)

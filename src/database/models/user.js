@@ -18,4 +18,4 @@ const UserSchema = new Schema({
     isAdmin: { type: Boolean, default: false }
 })
 
-export default model("User", UserSchema)
+export default UserSchema || model("User", UserSchema)

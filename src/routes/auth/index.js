@@ -5,6 +5,7 @@ import {
   verifyRefreshTokenAndGenerateNewTokens,
 } from "../../auth/tools.js";
 import { Router } from "express";
+
 const authRouter = Router();
 
 // Register
