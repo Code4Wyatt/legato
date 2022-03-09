@@ -12,6 +12,7 @@ import path from "path";
 import mongo from "mongodb";
 import "dotenv/config";
 
+
 const postRouter = Router();
 
 const mongoURI = process.env.MONGO_CONNECTION;
@@ -54,14 +55,15 @@ postRouter.post(
     try {
       const savedPost = await newPost.save();
       const payload = new FormData();
-      const video = req.video;
-      if (req.body.video) {
-          const savedVideo = await newVideo.save();
+      const video = req.body.video;
+      if (video) {
+        const savedVideo = await newVideo.save();
+        console.log(savedVideo)
       }
-      
       payload.append("video", video);
       console.log({ video: req.body.video });
-      res.status(200).json({savedPost, savedVideo});
+      res.status(200).json({ savedPost, savedVideo });
+      console.log({savedVideo, savedPost})
     } catch (error) {
       res.status(500).json(error);
     }
