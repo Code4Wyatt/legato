@@ -9,4 +9,4 @@ const VideoSchema = new Schema({
     user: { type: Schema.Types.ObjectId, ref: 'User' },
 })
 
-export default VideoSchema || model("Video", VideoSchema)
+export default model("Video", VideoSchema)

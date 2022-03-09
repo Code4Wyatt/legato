@@ -1,6 +1,6 @@
 import PostModel from "../../database/models/Post.js";
 import User from "../../database/models/User.js";
-import Video from "../../database/models/Video.js"
+import VideoModel from "../../database/models/Video.js"
 import { Router } from "express";
 import mongoose from "mongoose";
 import multer from "multer";
@@ -50,13 +50,18 @@ postRouter.post(
   upload.single("video"),
   async (req, res, next) => {
     const newPost = new PostModel(req.body);
+    const newVideo = new VideoModel(req.body.video);
     try {
       const savedPost = await newPost.save();
       const payload = new FormData();
       const video = req.video;
+      if (req.body.video) {
+          const savedVideo = await newVideo.save();
+      }
+      
       payload.append("video", video);
-      console.log({ video: req.video });
-      res.status(200).json({savedPost});
+      console.log({ video: req.body.video });
+      res.status(200).json({savedPost, savedVideo});
     } catch (error) {
       res.status(500).json(error);
     }
