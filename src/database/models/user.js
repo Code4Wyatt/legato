@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 
 const { Schema, model } = mongoose
 
-const UserSchema = new Schema({
+const UserSchema = new Schema ({
     firstname: { type: String, required: true },
     surname: { type: String, required: true },
     email: { type: String, required: true },
