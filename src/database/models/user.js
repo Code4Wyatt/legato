@@ -13,6 +13,7 @@ const UserSchema = new Schema({
     bands: { type: Array, default: [] },
     location: { type: String },
     instruments: { type: Array, default: [] },
+    videos: [{ type: Schema.Types.ObjectId, ref: 'Video' }], 
     followers: { type: Array, default: [] },
     following: { type: Array, default: [] },
     isAdmin: { type: Boolean, default: false }
