@@ -3,7 +3,7 @@ import mongoose from "mongoose"
 const { Schema, model } = mongoose
 
 const PostSchema = new Schema({
-    userId: { type: String, required: true },
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
     content: { type: String },
     video: [{ type: Schema.Types.ObjectId, ref: 'User' }],
     image: { type: String },
