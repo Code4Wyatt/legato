@@ -4,7 +4,7 @@ const { Schema, model } = mongoose
 
 const VideoSchema = new Schema({
     title: {type: String, required: true},
-    video: { type: File, required: true },
+    video: { type: String, required: true },
     description: { type: String },
     user: { type: Schema.Types.ObjectId, ref: 'User' },
 })

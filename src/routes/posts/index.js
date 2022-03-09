@@ -1,5 +1,6 @@
 import PostModel from "../../database/models/Post.js";
 import User from "../../database/models/User.js";
+import Video from "../../database/models/Video.js"
 import { Router } from "express";
 import mongoose from "mongoose";
 import multer from "multer";
@@ -55,7 +56,7 @@ postRouter.post(
       const video = req.video;
       payload.append("video", video);
       console.log({ video: req.video });
-      res.status(200).json(savedPost);
+      res.status(200).json({savedPost});
     } catch (error) {
       res.status(500).json(error);
     }
