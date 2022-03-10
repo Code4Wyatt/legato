@@ -61,8 +61,7 @@ postRouter.post(
         console.log(savedVideo)
       }
       payload.append("video", video);
-      console.log({ video: req.body.video });
-      res.status(200).json({ savedPost, savedVideo });
+      res.status(200).send(savedPost);
       console.log({savedVideo, savedPost})
     } catch (error) {
       res.status(500).json(error);
