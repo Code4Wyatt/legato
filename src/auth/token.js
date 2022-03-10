@@ -22,7 +22,7 @@ export const JWTAuthMiddleware = async (req, res, next) => {
       req.user = {
         _id: payload._id
         }
-        
+      
       next()
     } catch (error) {
       // 5. In case of error thrown from jsonwebtoken library --> 401

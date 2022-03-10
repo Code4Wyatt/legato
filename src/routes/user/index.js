@@ -1,8 +1,22 @@
 import bcrypt from "bcrypt";
 import { Router } from "express"
 import UserModel from "./schema.js"
+import { JWTAuthMiddleware } from "../../auth/token.js";
 
 const userRouter = Router()
+
+// Get User On Log In
+
+userRouter.get("/currentUser", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const loggedInUser = await UserModel.findOne({ email: req.body.email })
+    if (loggedInUser) {
+      res.status(200).send(loggedInUser);
+    }
+  } catch (error) {
+    res.status(500).json(error);
+  }
+})
 
 // Get Specific User
 

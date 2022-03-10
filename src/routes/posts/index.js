@@ -103,6 +103,17 @@ postRouter.get("/:id", async (req, res, next) => {
   }
 });
 
+// Get All Posts
+
+postRouter.get("/", async (req, res, next) => {
+  try {
+    const allPosts = await PostModel.find();
+    res.status(200).json(allPosts);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 // Edit Post
 
 postRouter.put("/:id", async (req, res, next) => {
@@ -154,7 +165,7 @@ postRouter.put("/:id/like", async (req, res, next) => {
 
 // Get Timeline Posts
 
-postRouter.get("/timeline"),
+postRouter.get("/"),
   async (req, res, next) => {
     try {
       const currentUser = await User.findById(req.body.userId);
