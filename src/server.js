@@ -24,7 +24,7 @@ server.use(express.urlencoded({ extended: false }))
 
 server.use("/auth", authRouter)
 server.use("/users", userRouter)
-server.use("/feed", postRouter)
+server.use("/timeline", postRouter)
 
 // ERROR HANDLERS 
 server.use(unauthorizedHandler)
