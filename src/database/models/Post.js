@@ -5,7 +5,7 @@ const { Schema, model } = mongoose
 const PostSchema = new Schema({
     userId: { type: Schema.Types.ObjectId, ref: 'User' },
     content: { type: String },
-    video: [{ type: Schema.Types.ObjectId, ref: 'User' }],
+    videoUrl: { type: String },
     image: { type: String },
     likes: { type: Array, default: [] },
 },
