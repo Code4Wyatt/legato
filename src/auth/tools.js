@@ -4,7 +4,7 @@ import UserModel from "../routes/user/schema.js"
 
 export const JWTAuthenticate = async (user) => {
   // 1. given the user, it generates two tokens: accessToken and refreshToken
-  const accessToken = await generateJWTToken({ _id: user._id })
+  const accessToken = await generateJWTToken({ _id: user._id, role: user.role })
   const refreshToken = await generateRefreshJWTToken({ _id: user._id })
 
   // 2. refresh token should be saved in db
