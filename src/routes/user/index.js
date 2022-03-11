@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import { Router } from "express";
 import UserModel from "./schema.js";
 import { JWTAuthMiddleware } from "../../auth/token.js";
+import createHttpError from "http-errors"
 import jwt from "jsonwebtoken";
 
 const userRouter = Router();
@@ -51,30 +52,46 @@ userRouter.get("/:id", async (req, res, next) => {
 
 // Edit User
 
-userRouter.put("/:id", async (req, res) => {
-  if (req.body.userId === req.params.id || req.body.isAdmin) {
-    // if userId matches id in params, or user is an admin
-    if (req.body.password) {
-      // and if password entered, salt it and then
-      try {
-        const salt = await bcrypt.genSalt(10);
-        req.body.password = await bcrypt.hash(req.body.password, salt);
-      } catch (err) {
-        return res.status(500).json(err);
-      }
+userRouter.put("/:id", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const userId = req.params.id;
+    const updatedUser = await UserModel.findByIdAndUpdate(userId, req.body, {
+      new: true,
+    }); // by default findByIdAndUpdate returns the document pre-update, if I want to retrieve the updated document, I should use new:true as an option
+    if (updatedUser) {
+      res.send(updatedUser);
+    } else {
+      next(createHttpError(404, `User with id ${userId} not found!`));
     }
-    try {
-      const user = await UserModel.findByIdAndUpdate(req.params.id, {
-        $set: req.body, // update the fields that are received in the request's body
-      });
-      res.status(200).json("Account has been updated successfully");
-    } catch (error) {
-      return res.status(500).json(error);
-    }
-  } else {
-    return res.status(403).json("You can update only your account!");
+  } catch (error) {
+    next(error);
   }
 });
+
+// userRouter.put("/:id", JWTAuthMiddleware, async (req, res) => {
+//   if (req.body.userId === req.params.id || req.body.isAdmin) {
+//     // if userId matches id in params, or user is an admin
+//     if (req.body.password) {
+//       // and if password entered, salt it and then
+//       try {
+//         const salt = await bcrypt.genSalt(10);
+//         req.body.password = await bcrypt.hash(req.body.password, salt);
+//       } catch (err) {
+//         return res.status(500).json(err);
+//       }
+//     }
+//     try {
+//       const user = await UserModel.findByIdAndUpdate(req.params.id, {
+//         $set: req.body, // update the fields that are received in the request's body
+//       });
+//       res.status(200).json("Account has been updated successfully");
+//     } catch (error) {
+//       return res.status(500).json(error);
+//     }
+//   } else {
+//     return res.status(403).json("You can update only your account!");
+//   }
+// });
 
 // Delete User
 
