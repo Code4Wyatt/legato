@@ -12,7 +12,7 @@ userRouter.get("/currentUser", JWTAuthMiddleware, async (req, res, next) => {
   try {
     let localUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null
     let currentUser = await UserModel.findOne({ username: localUsername });
-    res.status(200).send(currentUser);
+    res.status(200).send({currentUser});
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
