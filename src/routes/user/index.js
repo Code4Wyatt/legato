@@ -9,34 +9,44 @@ const userRouter = Router();
 
 // Get User On Log In
 
-// userRouter.get("/currentUser", JWTAuthMiddleware, async (req, res, next) => {
-//   try {
-//     let localUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null
-//     let currentUser = await UserModel.findOne({ username: localUsername });
-//     res.status(200).send({currentUser});
-//   } catch (error) {
-//     res.status(500).send({ error: error.message });
-//   }
-// });
-
 userRouter.get("/currentUser", JWTAuthMiddleware, async (req, res, next) => {
-    if (req.headers && req.headers.authorization) {
-        let authorization = req.headers.authorization.split(' ')[1],
-            decoded;
-        try {
-            decoded = jwt.verify(authorization, process.env.JWT_SECRET);
-        } catch (error) {
-            return res.status(401).send({message: error.message});
-        }
-        let userId = decoded.id;
-        // Fetch the user by id
-        UserModel.findOne({_id: userId}).then(function(user){
-            // Do something with the user
-            return res.send(200);
-        });
-    }
-    return res.send(500);
-})
+  try {
+    let localUsername = typeof window !== 'undefined' ? localStorage.getItem('username') : null
+    let currentUser = await UserModel.findOne({ username: localUsername });
+    res.status(200).send({currentUser});
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+userRouter.get("/currentUser/:email", JWTAuthMiddleware, async (req, res, next) => {
+  try {
+    const email = req.params.email
+    let currentUser = await UserModel.findOne({ email: email });
+    res.status(200).send({currentUser});
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+});
+
+// userRouter.get("/currentUser", JWTAuthMiddleware, async (req, res, next) => {
+//     if (req.headers && req.headers.authorization) {
+//         let authorization = req.headers.authorization.split(' ')[1],
+//             decoded;
+//         try {
+//           decoded = jwt.verify(authorization, process.env.JWT_SECRET);
+//           let userId = decoded._id;
+//         // Fetch the user by id
+//         UserModel.findOne({_id: userId}).then(function(user){
+//             // Do something with the user
+//             return res.status(200).send({user});
+//         });
+//         } catch (error) {
+//             return res.status(401).send({message: error.message});
+//         }
+        
+//     }
+//     return res.send(500);
+// })
 
 // Get Specific User
 

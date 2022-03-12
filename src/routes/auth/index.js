@@ -35,7 +35,8 @@ authRouter.post("/login", async (req, res, next) => {
     if (user) {
       // 3. If credentials are fine we are going to generate an access token and send it as a response
       const { accessToken, refreshToken } = await JWTAuthenticate(user);
-      res.send({ accessToken, refreshToken });
+      
+      res.send({ email, accessToken, refreshToken });
     } else {
       // 4. If they are not --> error (401)
       next(createHttpError(401, "Credentials are not ok!"));
