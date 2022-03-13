@@ -47,24 +47,14 @@ const upload = multer({ storage });
 
 postRouter.post(
   "/",
-  JWTAuthMiddleware,
-  upload.single("video"),
   async (req, res, next) => {
     const newPost = new PostModel(req.body);
-    const newVideo = new VideoModel(req.body.video);
     try {
       const savedPost = await newPost.save();
-      const payload = new FormData();
-      const video = req.body.video;
-      if (video) {
-        const savedVideo = await newVideo.save();
-        console.log(savedVideo)
-      }
-      payload.append("video", video);
       res.status(200).send(savedPost);
-      console.log({savedVideo, savedPost})
+      console.log(savedPost)
     } catch (error) {
-      res.status(500).json(error);
+      res.status(500).send({message: error.message});
     }
   }
 );
