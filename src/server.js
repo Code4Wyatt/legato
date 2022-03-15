@@ -12,14 +12,18 @@ import {
   catchAllHandler,
 } from "./errorHandlers.js"
 import "dotenv/config"
+import fileUpload from "express-fileupload";
+
 
 const server = express();
 const port = process.env.PORT || 5050
 
 // Middlewares
 server.use(cors())
-server.use(express.json())
-server.use(express.urlencoded({ extended: false }))
+server.use(fileUpload({createParentPath: true}));
+server.use(express.json({ limit: '50mb' }))
+server.use(express.urlencoded({ parameterLimit: 100000, limit: '50mb', extended: true }))
+
 // ENDPOINTS 
 
 server.use("/auth", authRouter)

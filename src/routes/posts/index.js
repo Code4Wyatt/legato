@@ -12,7 +12,6 @@ import path from "path";
 import mongo from "mongodb";
 import "dotenv/config";
 
-
 const postRouter = Router();
 
 const mongoURI = process.env.MONGO_CONNECTION;
