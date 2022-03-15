@@ -21,10 +21,9 @@ const port = process.env.PORT || 5050
 // Middlewares
 server.use(cors())
 server.use(fileUpload({createParentPath: true}));
-server.use(express.json({ limit: '50mb' }))
-server.use(express.urlencoded({ parameterLimit: 100000, limit: '50mb', extended: true }))
+server.use(express.json({ limit: '10mb' }))
+server.use(express.urlencoded({ parameterLimit: 100000, limit: '10mb', extended: true }))
 
-// ENDPOINTS 
 
 server.use("/auth", authRouter)
 server.use("/users", userRouter)

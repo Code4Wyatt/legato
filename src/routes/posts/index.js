@@ -8,16 +8,37 @@ import crypto from "crypto";
 import { GridFsStorage } from "multer-gridfs-storage";
 import Grid from "gridfs-stream";
 import { JWTAuthMiddleware } from "../../auth/token.js";
-import path from "path";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import path, { dirname, extname } from "path";
 import mongo from "mongodb";
 import "dotenv/config";
+import { fileURLToPath } from "url";
+import fs from "fs";
+
+const { CLOUDINARY_NAME, CLOUDINARY_KEY, CLOUDINARY_SECRET } = process.env;
+const mongoURI = process.env.MONGO_CONNECTION;
+
+cloudinary.config({
+  cloud_name: CLOUDINARY_NAME,
+  api_key: CLOUDINARY_KEY,
+  api_secret: CLOUDINARY_SECRET,
+})
 
 const postRouter = Router();
 
-const mongoURI = process.env.MONGO_CONNECTION;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const db = mongoURI;
 const gfs = await Grid(db, mongo);
+
+const cloudinaryStorage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "UNISON",
+  },
+});
 
 // Create storage engine
 
@@ -40,17 +61,21 @@ const storage = new GridFsStorage({
   },
 });
 
-const upload = multer({ storage });
+export const upload = multer({ storage });
 
 // Create Post
 
 postRouter.post(
-  "/",
+  "/", multer({ storage: cloudinaryStorage }).single("image"),
   async (req, res, next) => {
-    const newPost = new PostModel(req.body);
     try {
+      const newPost = new PostModel(req.body);
       const savedPost = await newPost.save();
-      res.status(200).send(savedPost);
+      if (newPost) {
+        newPost.image = req.file;
+        res.status(200).send(savedPost);
+      }
+      
       console.log(savedPost)
     } catch (error) {
       res.status(500).send({message: error.message});
