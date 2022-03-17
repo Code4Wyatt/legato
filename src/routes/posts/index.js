@@ -16,16 +16,9 @@ import "dotenv/config";
 import { fileURLToPath } from "url";
 import fs from "fs";
 
-const { CLOUDINARY_NAME, CLOUDINARY_KEY, CLOUDINARY_SECRET } = process.env;
 const mongoURI = process.env.MONGO_CONNECTION;
 
-cloudinary.config({
-  cloud_name: CLOUDINARY_NAME,
-  api_key: CLOUDINARY_KEY,
-  api_secret: CLOUDINARY_SECRET,
-})
 
-const postRouter = Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,7 +26,13 @@ const __dirname = dirname(__filename);
 const db = mongoURI;
 const gfs = await Grid(db, mongo);
 
-const cloudinaryStorage = new CloudinaryStorage({
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_NAME,
+  api_key: process.env.CLOUDINARY_KEY,
+  api_secret: process.env.CLOUDINARY_SECRET
+})
+
+const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "UNISON",
@@ -42,38 +41,50 @@ const cloudinaryStorage = new CloudinaryStorage({
 
 // Create storage engine
 
-const storage = new GridFsStorage({
-  url: mongoURI,
-  file: (req, file) => {
-    return new Promise((resolve, reject) => {
-      crypto.randomBytes(16, (err, buf) => {
-        if (err) {
-          return reject(err);
-        }
-        const filename = buf.toString("hex") + path.extname(file.originalname);
-        const fileInfo = {
-          filename: filename,
-          bucketName: "uploads",
-        };
-        resolve(fileInfo);
-      });
-    });
-  },
-});
+// const storage = new GridFsStorage({
+//   url: mongoURI,
+//   file: (req, file) => {
+//     return new Promise((resolve, reject) => {
+//       crypto.randomBytes(16, (err, buf) => {
+//         if (err) {
+//           return reject(err);
+//         }
+//         const filename = buf.toString("hex") + path.extname(file.originalname);
+//         const fileInfo = {
+//           filename: filename,
+//           bucketName: "uploads",
+//         };
+//         resolve(fileInfo);
+//       });
+//     });
+//   },
+// });
 
-export const upload = multer({ storage });
+const uploader = multer({
+  fileFilter: (req, file, multerNext) => {
+      if (file.mimetype !== "image/jpeg") {
+          multerNext(createHttpError(400, "Only .jpeg files are allowed"))
+      } else {
+          multerNext(null, true)
+      }
+  },
+  storage,
+}).single("fileImage");
+
+const postRouter = Router();
 
 // Create Post
 
 postRouter.post(
-  "/", multer({ storage: cloudinaryStorage }).single("image"),
+  "/", uploader,
   async (req, res, next) => {
     try {
       const newPost = new PostModel(req.body);
       const savedPost = await newPost.save();
+
       if (newPost) {
-        newPost.image = req.file;
-        res.status(200).send(savedPost);
+        res.send(savedPost);
+        
       }
       
       console.log(savedPost)
