@@ -10,17 +10,15 @@ import Grid from "gridfs-stream";
 import { JWTAuthMiddleware } from "../../auth/token.js";
 import { v2 as Cloudinary } from "cloudinary"
 import { CloudinaryStorage } from "multer-storage-cloudinary";
-import path, { dirname, extname } from "path";
 import mongo from "mongodb";
 import "dotenv/config";
-import { fileURLToPath } from "url";
 import streamifier from "streamifier";
-
+import fs from "fs";
 const mongoURI = process.env.MONGO_CONNECTION;
 
 
-Cloudinary.config({ 
-    cloud_name: process.env.CLOUD_NAME, 
+Cloudinary.config({
+    cloud_name: process.env.CLOUD_NAME,
     api_key: process.env.CLOUD_KEY,
     api_secret: process.env.CLOUD_SECRET
   })
@@ -31,10 +29,9 @@ const storage = new CloudinaryStorage({
     params: {
       folder: 'unison',
       format: async (req, file) => 'png', // supports promises as well
-      public_id: (req, file) => 'new',
     },
   })
-   
+
 const parser = multer({ storage: storage })
 
 const postRouter = Router();
@@ -42,16 +39,16 @@ const postRouter = Router();
 // Create Post
 
 postRouter.post(
-  "/", 
+  "/",
   async (req, res, next) => {
     try {
       const newPost = new PostModel(req.body);
       const savedPost = await newPost.save();
-      
+
       if (newPost) {
         res.send({savedPost});
-      } 
-      
+      }
+
       console.log(savedPost)
     } catch (error) {
       res.status(500).send({message: error.message});
@@ -65,17 +62,22 @@ postRouter.post("/:postId/image", parser.single('image'), async (req, res, next)
   try {
     let streamUpload = (req) => {
         return new Promise((resolve, reject) => {
-            let stream = Cloudinary.uploader.upload_stream(
-              (error, result) => {
-                if (result) {
-                  resolve(result);
-                } else {
-                  reject(error);
-                }
-              }
-            );
+          let stream =  Cloudinary.uploader.upload(
+              req.file
+              // (error, result) => {
+              //   if (result) {
+              //     resolve(result);
+              //     console.log(result);
+              //   } else {
+              //     reject(error);
+              //     console.log(error);
+              //   }
+              // }
+          );
 
-          streamifier.createReadStream(req.file).pipe(stream);
+          console.log(stream);
+       // ! streamifier.createReadStream(req.file).pipe(stream);
+          // ? createReadSteam error
         });
     };
 
@@ -88,7 +90,7 @@ postRouter.post("/:postId/image", parser.single('image'), async (req, res, next)
   } catch (error) {
     res.status(400).send(error);
   }
-    
+
 })
 
 
