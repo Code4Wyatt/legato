@@ -6,23 +6,17 @@ import listEndpoints from "express-list-endpoints"
 import authRouter from "./routes/auth/index.js"
 import userRouter from "./routes/user/index.js"
 import postRouter from "./routes/posts/index.js"
-import {
-  unauthorizedHandler,
-  forbiddenHandler,
-  catchAllHandler,
-} from "./errorHandlers.js"
+import { unauthorizedHandler, forbiddenHandler, catchAllHandler } from "./errorHandlers.js"
 import "dotenv/config"
-import fileUpload from "express-fileupload";
 
+const server = express()
 
-const server = express();
 const port = process.env.PORT || 5050
+
 
 // Middlewares
 server.use(cors())
-server.use(fileUpload({createParentPath: true}));
-server.use(express.json({ limit: '10mb' }))
-server.use(express.urlencoded({ parameterLimit: 100000, limit: '10mb', extended: true }))
+server.use(express.json());
 
 
 server.use("/auth", authRouter)

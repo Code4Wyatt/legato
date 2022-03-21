@@ -8,84 +8,49 @@ import crypto from "crypto";
 import { GridFsStorage } from "multer-gridfs-storage";
 import Grid from "gridfs-stream";
 import { JWTAuthMiddleware } from "../../auth/token.js";
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as Cloudinary } from "cloudinary"
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import path, { dirname, extname } from "path";
 import mongo from "mongodb";
 import "dotenv/config";
 import { fileURLToPath } from "url";
-import fs from "fs";
+import streamifier from "streamifier";
 
 const mongoURI = process.env.MONGO_CONNECTION;
 
 
+Cloudinary.config({ 
+    cloud_name: process.env.CLOUD_NAME, 
+    api_key: process.env.CLOUD_KEY,
+    api_secret: process.env.CLOUD_SECRET
+  })
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const db = mongoURI;
-const gfs = await Grid(db, mongo);
-
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET
-})
 
 const storage = new CloudinaryStorage({
-  cloudinary: cloudinary,
-  params: {
-    folder: "UNISON",
-  },
-});
-
-// Create storage engine
-
-// const storage = new GridFsStorage({
-//   url: mongoURI,
-//   file: (req, file) => {
-//     return new Promise((resolve, reject) => {
-//       crypto.randomBytes(16, (err, buf) => {
-//         if (err) {
-//           return reject(err);
-//         }
-//         const filename = buf.toString("hex") + path.extname(file.originalname);
-//         const fileInfo = {
-//           filename: filename,
-//           bucketName: "uploads",
-//         };
-//         resolve(fileInfo);
-//       });
-//     });
-//   },
-// });
-
-const uploader = multer({
-  fileFilter: (req, file, multerNext) => {
-      if (file.mimetype !== "image/jpeg") {
-          multerNext(createHttpError(400, "Only .jpeg files are allowed"))
-      } else {
-          multerNext(null, true)
-      }
-  },
-  storage,
-}).single("fileImage");
+    cloudinary: Cloudinary,
+    params: {
+      folder: 'unison',
+      format: async (req, file) => 'png', // supports promises as well
+      public_id: (req, file) => 'new',
+    },
+  })
+   
+const parser = multer({ storage: storage })
 
 const postRouter = Router();
 
 // Create Post
 
 postRouter.post(
-  "/", uploader,
+  "/", 
   async (req, res, next) => {
     try {
       const newPost = new PostModel(req.body);
       const savedPost = await newPost.save();
-
+      
       if (newPost) {
-        res.send(savedPost);
-        
-      }
+        res.send({savedPost});
+      } 
       
       console.log(savedPost)
     } catch (error) {
@@ -93,6 +58,40 @@ postRouter.post(
     }
   }
 );
+
+// Post Image to Post
+
+postRouter.post("/:postId/image", parser.single('image'), async (req, res, next) => {
+  try {
+    let streamUpload = (req) => {
+        return new Promise((resolve, reject) => {
+            let stream = Cloudinary.uploader.upload_stream(
+              (error, result) => {
+                if (result) {
+                  resolve(result);
+                } else {
+                  reject(error);
+                }
+              }
+            );
+
+          streamifier.createReadStream(req.file).pipe(stream);
+        });
+    };
+
+    async function upload(req) {
+        let result = await streamUpload(req.file);
+        console.log(result);
+    }
+
+    upload(req);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+    
+})
+
+
 
 // Get All Videos
 
