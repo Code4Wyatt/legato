@@ -62,21 +62,21 @@ postRouter.post("/:postId/image", parser.single('image'), async (req, res, next)
   try {
     let streamUpload = (req) => {
         return new Promise((resolve, reject) => {
-          let stream =  Cloudinary.uploader.upload(
-              req.file
-              // (error, result) => {
-              //   if (result) {
-              //     resolve(result);
-              //     console.log(result);
-              //   } else {
-              //     reject(error);
-              //     console.log(error);
-              //   }
-              // }
+          let stream =  Cloudinary.uploader.upload_stream(
+              (error, result) => {
+                if (result) {
+                  resolve(result);
+                  res.write(JSON.parse(result));
+                  console.log(result);
+                } else {
+                  reject(error);
+                  console.log(error);
+                }
+              }
           );
 
-          console.log(stream);
-       // ! streamifier.createReadStream(req.file).pipe(stream);
+          // ! console.log(stream);
+      streamifier.createReadStream(req.buffer).pipe(stream);
           // ? createReadSteam error
         });
     };

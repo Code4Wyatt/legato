@@ -7,7 +7,7 @@ const PostSchema = new Schema(
     userId: { type: Schema.Types.ObjectId, ref: "User" },
     content: { type: String },
     videoUrl: { type: String },
-    image: { type: Object },
+    image: { type: String },
     comments: [
       {
         user: { type: Schema.Types.ObjectId, ref: "User" },
