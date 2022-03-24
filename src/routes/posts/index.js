@@ -137,15 +137,13 @@ postRouter.put("/:id", async (req, res, next) => {
 
 // Delete Post
 
-postRouter.delete("/:id", async (req, res, next) => {
+postRouter.delete("/:id", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const post = await PostModel.findById(req.params.id);
-    if (post.userId === req.body.userId) {
-      await PostModel.deleteOne();
+
+      await post.deleteOne();
       res.status(200).json("Post successfully deleted!");
-    } else {
-      res.status(403).json("You can only delete your own posts.");
-    }
+    
   } catch (error) {
     res.status(500).json(error);
   }
