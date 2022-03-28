@@ -53,26 +53,23 @@ postRouter.post("/", async (req, res, next) => {
 
 // Post Image to Post
 
-postRouter.post("/:postId",
-  parser.single("image"),
-  async (req, res, next) => {
-    try {
-      const getPostById = await PostModel.findById(req.params.postId);
+postRouter.post("/:postId", parser.single("image"), async (req, res, next) => {
+  try {
+    const getPostById = await PostModel.findById(req.params.postId);
 
-      if (getPostById) {
-        getPostById.image = req.file.path;
+    if (getPostById) {
+      getPostById.image = req.file.path;
 
-        await getPostById.save();
-        
-        res.status(203).send({ success: true, data: getPostById });
-      } else {
-        res.status(404).send({ success: false, message: "Post not found" });
-      }
-    } catch (error) {
-      res.status(500).send({ success: false, error: error.message });
+      await getPostById.save();
+
+      res.status(203).send({ success: true, data: getPostById });
+    } else {
+      res.status(404).send({ success: false, message: "Post not found" });
     }
+  } catch (error) {
+    res.status(500).send({ success: false, error: error.message });
   }
-);
+});
 
 // Get All Videos
 
@@ -123,18 +120,21 @@ postRouter.get("/", async (req, res, next) => {
 
 postRouter.get("/:userId/posts", async (req, res, next) => {
   try {
-    const usersPosts = await PostModel.find({ userId: req.params.userId});
+    const usersPosts = await PostModel.find({ userId: req.params.userId });
     res.status(200).json(usersPosts);
   } catch (error) {
     res.status(500).json(error);
   }
 });
 
-// Get Users Media Posts 
+// Get Users Media Posts
 
 postRouter.get("/:userId/media", async (req, res, next) => {
   try {
-    const usersPosts = await PostModel.find({ userId: req.params.userId, image: /http/});
+    const usersPosts = await PostModel.find({
+      userId: req.params.userId,
+      image: /http/,
+    });
     res.status(200).json(usersPosts);
   } catch (error) {
     res.status(500).json(error);
@@ -163,9 +163,8 @@ postRouter.delete("/:id", async (req, res, next) => {
   try {
     const post = await PostModel.findById(req.params.id);
 
-      await post.deleteOne();
-      res.status(200).json("Post successfully deleted!");
-    
+    await post.deleteOne();
+    res.status(200).json("Post successfully deleted!");
   } catch (error) {
     res.status(500).json(error);
   }
@@ -185,6 +184,44 @@ postRouter.put("/:id/like", async (req, res, next) => {
     }
   } catch (error) {
     res.status(500).json(error);
+  }
+});
+
+// Comment Post
+
+postRouter.post("/:postId/comment", async (req, res, next) => {
+  try {
+    console.log(req.body);
+
+    const newComment = await PostModel.findByIdAndUpdate(
+      req.params.postId,
+      { $push: { comments: req.body } },
+      { new: true }
+    );
+
+    if (newComment) {
+      res.status(201).send({ success: true, data: newComment.comments });
+    } else {
+      res.status(400).send({ success: false, error: "Bad Request" });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, error: error.message });
+  }
+});
+
+// Get Post Comments
+
+postRouter.get("/:postId/comments", async (req, res, next) => {
+  try {
+    const fetchComments = await PostModel.findById(req.params.postId).populate("comments.user");
+
+    if (fetchComments) {
+      res.status(200).send({ success: true, data: fetchComments.comments });
+    } else {
+      res.status(404).send({ success: false, error: "Post not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ success: false, error: error.message });
   }
 });
 
