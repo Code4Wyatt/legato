@@ -130,6 +130,17 @@ postRouter.get("/:userId/posts", async (req, res, next) => {
   }
 });
 
+// Get Users Media Posts 
+
+postRouter.get("/:userId/media", async (req, res, next) => {
+  try {
+    const usersPosts = await PostModel.find({ userId: req.params.userId, image: /http/});
+    res.status(200).json(usersPosts);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 // Edit Post
 
 postRouter.put("/:id", async (req, res, next) => {
