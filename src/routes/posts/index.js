@@ -63,7 +63,7 @@ postRouter.post("/:postId",
         getPostById.image = req.file.path;
 
         await getPostById.save();
-
+        
         res.status(203).send({ success: true, data: getPostById });
       } else {
         res.status(404).send({ success: false, message: "Post not found" });
@@ -114,6 +114,17 @@ postRouter.get("/", async (req, res, next) => {
   try {
     const allPosts = await PostModel.find();
     res.status(200).json(allPosts);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
+// Get Users Posts
+
+postRouter.get("/:userId/posts", async (req, res, next) => {
+  try {
+    const usersPosts = await PostModel.find({ userId: req.params.userId});
+    res.status(200).json(usersPosts);
   } catch (error) {
     res.status(500).json(error);
   }
