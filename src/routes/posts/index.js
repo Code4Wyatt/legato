@@ -137,7 +137,7 @@ postRouter.put("/:id", async (req, res, next) => {
 
 // Delete Post
 
-postRouter.delete("/:id", JWTAuthMiddleware, async (req, res, next) => {
+postRouter.delete("/:id", async (req, res, next) => {
   try {
     const post = await PostModel.findById(req.params.id);
 

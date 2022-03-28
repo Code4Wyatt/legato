@@ -18,6 +18,7 @@ userRouter.get("/currentUser", JWTAuthMiddleware, async (req, res, next) => {
     res.status(500).send({ error: error.message });
   }
 });
+
 userRouter.get("/currentUser/:email", JWTAuthMiddleware, async (req, res, next) => {
   try {
     const email = req.params.email
