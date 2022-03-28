@@ -16,7 +16,7 @@ const port = process.env.PORT || 5050
 
 // Middlewares
 server.use(cors())
-server.use(express.json());
+server.use(express.json())
 
 
 server.use("/auth", authRouter)
