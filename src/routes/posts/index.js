@@ -26,7 +26,7 @@ const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: Cloudinary,
   params: {
     folder: "unison",
-    format: async (req, file) => "png", // supports promises as well
+    format: async (req, file) => ("png", "mp4")// supports promises as well
   },
 });
 
@@ -172,9 +172,9 @@ postRouter.delete("/:id", async (req, res, next) => {
 
 // Like and Dislike Post
 
-postRouter.put("/:id/like", async (req, res, next) => {
+postRouter.put("/:postId/like", async (req, res, next) => {
   try {
-    const post = await PostModel.findById(req.params.id);
+    const post = await PostModel.findById(req.params.postId);
     if (!post.likes.includes(req.body.userId)) {
       await PostModel.updateOne({ $push: { likes: req.body.userId } });
       res.status(200).json("Post liked!");
