@@ -172,15 +172,17 @@ postRouter.delete("/:id", async (req, res, next) => {
 
 // Like and Dislike Post
 
-postRouter.put("/:postId/like", async (req, res, next) => {
-  try {
-    const post = await PostModel.findById(req.params.postId);
-    if (!post.likes.includes(req.body.userId)) {
-      await PostModel.updateOne({ $push: { likes: req.body.userId } });
-      res.status(200).json("Post liked!");
+postRouter.post("/:postId/like", async (req, res, next) => {
+   try {
+     const newLike = await PostModel.findByIdAndUpdate(
+      req.params.postId,
+      { $push: { likes: req.body.currentUserId } },
+      { new: true }
+    );
+    if (newLike) {
+      res.status(201).send({ success: true, data: newLike.likes });
     } else {
-      await PostModel.updateOne({ $pull: { likes: req.body.userId } });
-      res.status(200).json("Post disliked!");
+      res.status(400).send({ success: false, error: "Bad Request" });
     }
   } catch (error) {
     res.status(500).json(error);
