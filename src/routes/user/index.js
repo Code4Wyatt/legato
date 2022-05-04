@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { Router } from "express";
 import UserModel from "./schema.js";
 import { JWTAuthMiddleware } from "../../auth/token.js";
-import createHttpError from "http-errors"
+import createHttpError from "http-errors";
 import jwt from "jsonwebtoken";
 
 const userRouter = Router();
@@ -23,6 +23,7 @@ userRouter.get("/currentUser/:email", JWTAuthMiddleware, async (req, res, next) 
   try {
     const email = req.params.email
     let currentUser = await UserModel.findOne({ email: email });
+
     res.status(200).send({currentUser});
   } catch (error) {
     res.status(500).send({ error: error.message });

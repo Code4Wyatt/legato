@@ -26,7 +26,7 @@ const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: Cloudinary,
   params: {
     folder: "unison",
-    format: async (req, file) => ("png", "mp4")// supports promises as well
+    format: async (req, file) => ("png")// supports promises as well
   },
 });
 
@@ -116,6 +116,17 @@ postRouter.get("/", async (req, res, next) => {
   }
 });
 
+// Get All Posts With Media
+
+postRouter.get("/media", async (req, res, next) => {
+  try {
+    const allImagePosts = await PostModel.find().populate({ match: { images: true }, select: images});
+    res.status(200).json(allImagePosts);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+});
+
 // Get Users Posts
 
 postRouter.get("/:userId/posts", async (req, res, next) => {
@@ -176,10 +187,10 @@ postRouter.post("/:postId/like", async (req, res, next) => {
    try {
      const newLike = await PostModel.findByIdAndUpdate(
       req.params.postId,
-      { $push: { likes: req.body.currentUserId } },
+      { $push: { likes: [req.body.currentUserId] } },
       { new: true }
     );
-    if (newLike) {
+     if (newLike) {
       res.status(201).send({ success: true, data: newLike.likes });
     } else {
       res.status(400).send({ success: false, error: "Bad Request" });

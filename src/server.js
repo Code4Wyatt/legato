@@ -13,7 +13,6 @@ const server = express()
 
 const port = process.env.PORT || 5050
 
-
 // Middlewares
 server.use(cors())
 server.use(express.json())
