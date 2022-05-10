@@ -26,7 +26,7 @@ const cloudinaryStorage = new CloudinaryStorage({
   cloudinary: Cloudinary,
   params: {
     folder: "unison",
-    format: async (req, file) => ("png")// supports promises as well
+    format: async (req, file) => ("png", "mp4")// supports promises as well
   },
 });
 
@@ -66,6 +66,31 @@ postRouter.post("/:postId", parser.single("image"), async (req, res, next) => {
     } else {
       res.status(404).send({ success: false, message: "Post not found" });
     }
+  } catch (error) {
+    res.status(500).send({ success: false, error: error.message });
+  }
+});
+
+// Post Video to Post
+
+postRouter.post("/:postId/video", parser.single("video"), async (req, res, next) => {
+  try {
+    const getPostById = await PostModel.findById(req.params.postId);
+
+   // Filter the file to validate if it meets the required video extension
+  const fileFilter = (req, file, cb) => {
+    if (file.mimetype === "video/mp4") {
+      cb(null, true);
+    } else {
+      cb(
+        {
+          message: "Unsupported File Format",
+        },
+        false
+      );
+    }
+    };
+    
   } catch (error) {
     res.status(500).send({ success: false, error: error.message });
   }
