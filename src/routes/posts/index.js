@@ -41,9 +41,9 @@ postRouter.post("/", async (req, res, next) => {
     const newPost = new PostModel(req.body);
     const savedPost = await newPost.save();
 
-    if (newPost) {
-      res.send({ savedPost });
-    }
+    // if (newPost) {
+    //   res.send({ savedPost });
+    // }
 
     console.log(savedPost);
   } catch (error) {
