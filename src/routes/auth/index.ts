@@ -1,17 +1,16 @@
 import bcrypt from "bcrypt";
-import UserModel from "../user/schema.js";
+import UserModel from "../../database/models/user.js";
 import {
   JWTAuthenticate,
   verifyRefreshTokenAndGenerateNewTokens,
 } from "../../auth/tools.js";
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import createHttpError from "http-errors"
 
 const authRouter = Router();
 
 // Register
-
-authRouter.post("/register", async (req, res, next) => {
+authRouter.post("/register", async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = new UserModel(req.body);
     const { _id } = await user.save();
@@ -23,8 +22,7 @@ authRouter.post("/register", async (req, res, next) => {
 });
 
 // Login
-
-authRouter.post("/login", async (req, res, next) => {
+authRouter.post("/login", async (req: Request, res: Response, next: NextFunction) => {
   try {
     // 1. Obtain credentials from req.body
     const { email, password } = req.body;
@@ -46,7 +44,7 @@ authRouter.post("/login", async (req, res, next) => {
   }
 });
 
-authRouter.post("/refreshToken", async (req, res, next) => {
+authRouter.post("/refreshToken", async (req: Request, res: Response, next: NextFunction) => {
   try {
     // 1. Receive the current refresh token in req.body
     const { currentRefreshToken } = req.body;
